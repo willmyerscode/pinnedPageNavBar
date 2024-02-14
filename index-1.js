@@ -1,8 +1,3 @@
-/*Issues:
-1. There seem to be some performance issues? Maybe throttle the scroll?
-2. Wasn't working on iPhone when I did a quick test
-*/ 
-
 class pageSubNav {
   constructor(el, settings) {
     this.el = el;
@@ -17,7 +12,6 @@ class pageSubNav {
   init() {
     this.bindEvents();
     this.setActiveSection(this.settings.items[0].targets[0]);
-    this.checkIfShouldShow()
   }
 
   bindEvents() {
@@ -36,11 +30,10 @@ class pageSubNav {
   }
 
   onScroll() {
-    this.checkIfShouldShow()
     if (!this.debouncedScrollEnd) {
       this.debouncedScrollEnd = this.createDebouncedScrollEnd(() => {
         this.disableObserver = false;
-      }, 300);
+      }, 100);
     }
 
     this.debouncedScrollEnd();
@@ -49,16 +42,6 @@ class pageSubNav {
     const activeSection = this.getMostVisibleSection();
     if (activeSection) {
       this.setActiveSection(activeSection);
-    }
-  }
-
-  checkIfShouldShow() {
-    const isBelowThreshold = window.scrollY >= this.settings.upperThreshold;
-    const isAboveThreshold = (window.scrollY + window.innerHeight) <= (document.body.scrollHeight - this.settings.lowerThreshold + 1);
-    if (isBelowThreshold && isAboveThreshold) {
-      this.el.classList.add('show')
-    } else {
-      this.el.classList.remove('show')
     }
   }
 
@@ -83,6 +66,23 @@ class pageSubNav {
       offsetLeft + nav.scrollLeft + "px"
     );
   }
+
+  /*setMostVisibleSection() {
+    let mostVisibleSection = null;
+    let maxVisibleHeight = 0;
+    this.settings.items.forEach(item => {
+      const section = item.target;
+      const rect = section.getBoundingClientRect();
+      const visibleHeight =
+        Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+
+      if (visibleHeight > maxVisibleHeight) {
+        maxVisibleHeight = visibleHeight;
+        mostVisibleSection = section;
+      }
+    });
+    return mostVisibleSection;
+  }*/
 
   getMostVisibleSection() {
     let mostVisibleSection = null;
@@ -136,10 +136,7 @@ class pageSubNav {
   buildPageNav();
 
   const pluginEl = document.querySelector('[data-wm-plugin="page-nav"]');
-  const settings = {
-    upperThreshold: 0,
-    lowerThreshold: 0
-  };
+  const settings = {};
   settings.items = [];
 
   Array.from(pluginEls).map(el => {
