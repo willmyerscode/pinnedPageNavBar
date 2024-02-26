@@ -1,6 +1,5 @@
 /*Issues:
 1. There seem to be some performance issues? Maybe throttle the scroll?
-2. Wasn't working on iPhone when I did a quick test
 */ 
 
 class pageSubNav {
@@ -15,13 +14,14 @@ class pageSubNav {
   }
 
   init() {
+    this.throttledOnScroll = this.throttle(this.onScroll, 300);
     this.bindEvents();
     this.setActiveSection(this.settings.items[0].targets[0]);
     this.checkIfShouldShow()
   }
 
   bindEvents() {
-    window.addEventListener("scroll", this.onScroll);
+    window.addEventListener("scroll", this.throttledOnScroll);
     this.settings.items.forEach(item => {
       item.buttonEl.addEventListener("click", () =>
         this.handleButtonClick(item)
@@ -31,12 +31,11 @@ class pageSubNav {
 
   handleButtonClick(item) {
     this.disableObserver = true;
-    item.targets[0].scrollIntoView({behavior: "smooth"});
+    this.scrollSectionIntoView(item)
     this.setActiveSection(item.targets[0]);
   }
 
   onScroll() {
-    this.checkIfShouldShow()
     if (!this.debouncedScrollEnd) {
       this.debouncedScrollEnd = this.createDebouncedScrollEnd(() => {
         this.disableObserver = false;
@@ -46,10 +45,21 @@ class pageSubNav {
     this.debouncedScrollEnd();
   
     if (this.disableObserver) return;
+    console.log('run')
     const activeSection = this.getMostVisibleSection();
+    this.checkIfShouldShow()
     if (activeSection) {
       this.setActiveSection(activeSection);
     }
+  }
+
+  scrollSectionIntoView(item) {
+    const firstSection = item.targets[0];
+    const top = firstSection.offsetTop;
+    window.scrollTo({
+      top: top,
+      behavior: 'smooth'
+    })
   }
 
   checkIfShouldShow() {
@@ -66,22 +76,42 @@ class pageSubNav {
     const activeItem = this.settings.items.find(
       item => item.targets.includes(section)
     );
-
+  
     if (!activeItem) return;
-
+  
     this.settings.items.forEach(item =>
       item.buttonEl.classList.remove("active")
     );
     activeItem.buttonEl.classList.add("active");
-
-    const {clientWidth: width, offsetLeft} = activeItem.buttonEl;
+  
+    const { clientWidth: activeWidth, offsetLeft: activeOffsetLeft } = activeItem.buttonEl;
     const nav = activeItem.buttonEl.closest("nav");
+  
+    // Function to update indicator position
+    const updateIndicator = () => {
+      this.el.style.setProperty("--indicator-width", activeWidth + "px");
+      this.el.style.setProperty("--indicator-left", activeOffsetLeft + "px");
+    };
+    
+    /* Center Active Item in Nav */
+    const navScrollWidth = nav.scrollWidth;
+    const navClientWidth = nav.clientWidth;
+  
+    if (navScrollWidth > navClientWidth) {
+      const activeItemOffset = activeOffsetLeft + activeWidth / 2;
+      const navHalfWidth = navClientWidth / 2;
+      const scrollTo = activeItemOffset - navHalfWidth;
+  
+      // Scroll nav to center the active item
+      nav.scrollTo({
+        left: scrollTo,
+        behavior: 'smooth'
+      });
+      updateIndicator();
+    } else {
+      updateIndicator();
+    }
 
-    this.el.style.setProperty("--indicator-width", width + "px");
-    this.el.style.setProperty(
-      "--indicator-left",
-      offsetLeft + nav.scrollLeft + "px"
-    );
   }
 
   getMostVisibleSection() {
@@ -104,6 +134,27 @@ class pageSubNav {
       clearTimeout(this.scrollTimeout);
       this.scrollTimeout = setTimeout(callback, delay);
     };
+  }
+  
+  throttle(func, limit) {
+    let lastFunc;
+    let lastRan;
+    return function() {
+      const context = this;
+      const args = arguments;
+      if (!lastRan) {
+        func.apply(context, args);
+        lastRan = Date.now();
+      } else {
+        clearTimeout(lastFunc);
+        lastFunc = setTimeout(function() {
+          if ((Date.now() - lastRan) >= limit) {
+            func.apply(context, args);
+            lastRan = Date.now();
+          }
+        }, limit - (Date.now() - lastRan));
+      }
+    }
   }
 }
 
