@@ -1,108 +1,108 @@
 /** 
-* Floating Page Nav for Squarespace
+* Pinned Page Navbar for Squarespace
 * Copyright Will-Myers.com
 ***/ 
 
 [data-wm-plugin="pinned-page-navbar"] {
   /*Nav Container*/
-  --fn-padding-x: 8px;  /*internal padding of nav*/
-  --fn-padding-y: 8px;  /*internal padding of nav*/
-  --fn-border-radius: 2em;   /*internal padding of nav*/
-  --fn-background: var(--primaryButtonBackgroundColor);
-  --fn-border-style: solid;
-  --fn-border-width: 0px;
-  --fn-border-color: hsla(var(--safeLightAccent-hsl));
-  --fn-shadow-offset-x: 2px;
-  --fn-shadow-offset-y: 2px;
-  --fn-shadow-blur: 4px;
-  --fn-shadow-spread: 0px;
-  --fn-shadow-color: hsla(0, 0%, 0%, 0.15);
-  --fn-max-width: 90vw;
-  --fn-bottom-offset: 34px;
+  --ppn-padding-x: 8px;  /*internal padding of nav*/
+  --ppn-padding-y: 8px;  /*internal padding of nav*/
+  --ppn-border-radius: 2em;   /*internal padding of nav*/
+  --ppn-background: var(--primaryButtonBackgroundColor);
+  --ppn-border-style: solid;
+  --ppn-border-width: 0px;
+  --ppn-border-color: hsla(var(--safeLightAccent-hsl));
+  --ppn-shadow-offset-x: 2px;
+  --ppn-shadow-offset-y: 2px;
+  --ppn-shadow-blur: 4px;
+  --ppn-shadow-spread: 0px;
+  --ppn-shadow-color: hsla(0, 0%, 0%, 0.15);
+  --ppn-max-width: 90vw;
+  --ppn-bottom-offset: 34px;
 
   /*Button Styles*/
-  --fn-button-border-radius: 2em;   /*internal padding of nav*/
-  --fn-button-font-size: calc((var(--primary-button-font-font-size-value, 1) - 1) * 1.2vw + 1rem) ;
-  --fn-button-color: var(--siteBackgroundColor);
-  --fn-button-font-family: var(--primary-button-font-font-family);
-  --fn-button-font-style: var(--primary-button-font-font-style);
-  --fn-button-font-weight: var(--primary-button-font-font-weight);
-  --fn-button-line-height: var(--primary-button-font-line-height);
-  --fn-button-letter-spacing: var(--primary-button-font-letter-spacing);
-  --fn-button-text-transform: var(--primary-button-font-text-transform);
-  --fn-button-padding-y: var(--primary-button-padding-y);
-  --fn-button-padding-x: var(--primary-button-padding-x);
-  --fn-button-background: hsla(var(--darkAccent-hsl));
-  --fn-button-background: transparent;
-  --fn-button-border-style: solid;
-  --fn-button-border-width: 0px;
-  --fn-button-border-color: currentColor;
-  --fn-button-spacing: 8px;
+  --ppn-button-border-radius: 2em;   /*internal padding of nav*/
+  --ppn-button-font-size: calc((var(--primary-button-font-font-size-value, 1) - 1) * 1.2vw + 1rem) ;
+  --ppn-button-color: var(--siteBackgroundColor);
+  --ppn-button-font-family: var(--primary-button-font-font-family);
+  --ppn-button-font-style: var(--primary-button-font-font-style);
+  --ppn-button-font-weight: var(--primary-button-font-font-weight);
+  --ppn-button-line-height: var(--primary-button-font-line-height);
+  --ppn-button-letter-spacing: var(--primary-button-font-letter-spacing);
+  --ppn-button-text-transform: var(--primary-button-font-text-transform);
+  --ppn-button-padding-y: var(--primary-button-padding-y);
+  --ppn-button-padding-x: var(--primary-button-padding-x);
+  --ppn-button-background: hsla(var(--darkAccent-hsl));
+  --ppn-button-background: transparent;
+  --ppn-button-border-style: solid;
+  --ppn-button-border-width: 0px;
+  --ppn-button-border-color: currentColor;
+  --ppn-button-spacing: 8px;
 
   /*Active Button Styles*/
-  --fn-active-button-color: var(--primaryButtonBackgroundColor);;
-  --fn-active-button-background: 0;
-  --fn-active-button-border-color: hsla(var(--safeLightAccent-hsl));
+  --ppn-active-button-color: var(--primaryButtonBackgroundColor);;
+  --ppn-active-button-background: 0;
+  --ppn-active-button-border-color: hsla(var(--safeLightAccent-hsl));
 
   /*Indicator Styles*/
-  --fn-indicator-background: var(--siteBackgroundColor);
-  --fn-indicator-border-radius: 2rem;
-  --fn-transition-speed: 0.5s;
+  --ppn-indicator-background: var(--siteBackgroundColor);
+  --ppn-indicator-border-radius: 2rem;
+  --ppn-transition-speed: 0.5s;
 }
 
 .wm-pinned-page-navbar {
   position: fixed;
-  bottom: var(--fn-bottom-offset);
+  bottom: var(--ppn-bottom-offset);
   left: 50%;
   z-index: 9999;
   line-height: 0;
   overflow:hidden;
   transform: translate(-50%, 250px);
-  transition: transform var(--fn-transition-speed) ease var(--fn-transition-speed);
-  border-radius: var(--fn-border-radius);
-  background: var(--fn-background);
-  border-style: var(--fn-border-style);
-  border-width: var(--fn-border-width);
-  border-color: var(--fn-border-color);
-  box-shadow: var(--fn-shadow-offset-x) 
-    var(--fn-shadow-offset-y) 
-    var(--fn-shadow-blur) 
-    var(--fn-shadow-spread) 
-    var(--fn-shadow-color);
+  transition: transform var(--ppn-transition-speed) ease var(--ppn-transition-speed);
+  border-radius: var(--ppn-border-radius);
+  background: var(--ppn-background);
+  border-style: var(--ppn-border-style);
+  border-width: var(--ppn-border-width);
+  border-color: var(--ppn-border-color);
+  box-shadow: var(--ppn-shadow-offset-x) 
+    var(--ppn-shadow-offset-y) 
+    var(--ppn-shadow-blur) 
+    var(--ppn-shadow-spread) 
+    var(--ppn-shadow-color);
 }
 
 .wm-pinned-page-navbar nav {
-  padding: var(--fn-padding-y) var(--fn-padding-x);
+  padding: var(--ppn-padding-y) var(--ppn-padding-x);
   display: inline-flex;
   position: relative;
   flex-wrap: nowrap;
   overflow: auto;
   width: 100%;
-  max-width: var(--fn-max-width);
+  max-width: var(--ppn-max-width);
   box-sizing: border-box;
 }
 
 .wm-pinned-page-navbar button {
   flex-grow: 1;
   flex-shrink: 0;
-  margin-right: var(--fn-button-spacing);
+  margin-right: var(--ppn-button-spacing);
   cursor: pointer;
-  border-radius: var(--fn-button-border-radius);
-  padding: var(--fn-button-padding-y) var(--fn-button-padding-x);
-  color: var(--fn-button-color);
-  background: var(--fn-button-background);
-  border-style: var(--fn-button-border-style);
-  border-width: var(--fn-button-border-width);
-  border-color: var(--fn-button-border-color);
+  border-radius: var(--ppn-button-border-radius);
+  padding: var(--ppn-button-padding-y) var(--ppn-button-padding-x);
+  color: var(--ppn-button-color);
+  background: var(--ppn-button-background);
+  border-style: var(--ppn-button-border-style);
+  border-width: var(--ppn-button-border-width);
+  border-color: var(--ppn-button-border-color);
   z-index: 1;
-  transition: color var(--fn-transition-speed) ease;
+  transition: color var(--ppn-transition-speed) ease;
   white-space: nowrap;
-  font-size: var(--fn-button-font-size);
-  font-family: var(--fn-button-font-family);
-  font-style: var(--fn-button-font-style);
-  font-weight: var(--fn-button-font-weight);
-  letter-spacing: var(--fn-button-letter-spacing);
-  text-transform: var(--fn-button-text-transform);
+  font-size: var(--ppn-button-font-size);
+  font-family: var(--ppn-button-font-family);
+  font-style: var(--ppn-button-font-style);
+  font-weight: var(--ppn-button-font-weight);
+  letter-spacing: var(--ppn-button-letter-spacing);
+  text-transform: var(--ppn-button-text-transform);
 }
 
 .wm-pinned-page-navbar button:last-child {
@@ -110,9 +110,9 @@
 }
 
 .wm-pinned-page-navbar button.active {
-  color: var(--fn-active-button-color);
-  background: var(--fn-active-button-background);
-  border-color: var(--fn-active-button-border-color);
+  color: var(--ppn-active-button-color);
+  background: var(--ppn-active-button-background);
+  border-color: var(--ppn-active-button-border-color);
 }
 
 .wm-pinned-page-navbar .indicator-track {
@@ -121,7 +121,7 @@
   width: var(--nav-width, 100%);
   height: 100%;
   box-sizing:border-box;
-  padding: var(--fn-padding-y) var(--fn-padding-x);
+  padding: var(--ppn-padding-y) var(--ppn-padding-x);
   left: 0;
   top: 0;
   z-index: 0;
@@ -131,11 +131,11 @@
   height: var(--indicator-height, calc(100% - 8px));
   position: absolute;
   left: var(--indicator-left);
-  top: var(--fn-padding-y);
-  background: var(--fn-indicator-background);
+  top: var(--ppn-padding-y);
+  background: var(--ppn-indicator-background);
   box-sizing: border-box;
-  border-radius: var(--fn-indicator-border-radius);
-  transition: left var(--fn-transition-speed) ease, width var(--fn-transition-speed) ease, height var(--fn-transition-speed) linear, transform var(--fn-transition-speed) ease;
+  border-radius: var(--ppn-indicator-border-radius);
+  transition: left var(--ppn-transition-speed) ease, width var(--ppn-transition-speed) ease, height var(--ppn-transition-speed) linear, transform var(--ppn-transition-speed) ease;
   z-index: 0;
 }
 
@@ -163,8 +163,8 @@ body:not(.sqs-edit-mode-active) [data-wm-pinned-page-navbar-end]{
 }
 
 [data-scroll-position="above-first"].wm-pinned-page-navbar .indicator{
-  transform: translateX(calc(-1 * var(--fn-padding-x) - 100%))
+  transform: translateX(calc(-1 * var(--ppn-padding-x) - 100%))
 }
 [data-scroll-position="below-last"].wm-pinned-page-navbar .indicator{
-  transform: translateX(calc(var(--fn-padding-x) + 100%))
+  transform: translateX(calc(var(--ppn-padding-x) + 100%))
 }

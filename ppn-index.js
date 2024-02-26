@@ -1,5 +1,5 @@
 /** 
-* Floating Page Nav for Squarespace
+* Pinned Page Navbar for Squarespace
 * Copyright Will-Myers.com
 **/ 
 
