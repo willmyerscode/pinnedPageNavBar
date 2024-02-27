@@ -3,6 +3,7 @@
 * Copyright Will-Myers.com
 **/ 
 
+
 class PinnedPageNavBar {
   static emitEvent(type, detail = {}, elem = document) {
     // Make sure there's an event type
@@ -25,6 +26,8 @@ class PinnedPageNavBar {
     this.nav = this.el.querySelector('nav')
     this.sections = document.querySelectorAll('#sections > .page-section');
     this.pageNavElements = document.querySelectorAll("[data-wm-pinned-page-navbar]");
+    this.scrollLeftButton = this.el.querySelector('.scroll-indicator.scroll-left');
+    this.scrollRightButton = this.el.querySelector('.scroll-indicator.scroll-right');
     this.scrollTimeout = null;
     this.preventScrollUpdates = false;
     this.activeItem = null;
@@ -34,7 +37,6 @@ class PinnedPageNavBar {
 
   init() {
     this.setupNavItemData();
-    console.log(this.items)
     this.bindEvents();
     this.setActiveSection(this.getMostVisibleSection());
     this.updateVisibilityBasedOnThreshold();
@@ -73,6 +75,8 @@ class PinnedPageNavBar {
       this.preventScrollUpdates = false;
     }, 300);
     this.addButtonClickEventListeners();
+    this.addScrollIndicatorButtonClickEventListeners();
+    this.addNavScrollEventListener();
     this.addResizeEventListener()
     this.addDOMContentLoadedEventListener()
     this.addLoadEventListener();
@@ -91,9 +95,38 @@ class PinnedPageNavBar {
       );
     });
   }
+  addScrollIndicatorButtonClickEventListeners() {
+    const handleClick = (e) => {
+      if (e.target.closest('button.scroll-left')) {
+        const left = this.nav.scrollLeft - (this.nav.clientWidth / 2)
+        this.nav.scrollTo({
+          left: left,
+          behavior: 'smooth'
+        });
+      }
+      if (e.target.closest('button.scroll-right')) {
+        const left = this.nav.scrollLeft + (this.nav.clientWidth / 2)
+        this.nav.scrollTo({
+          left: left,
+          behavior: 'smooth'
+        });
+      }
+    }
+
+    this.scrollRightButton.addEventListener('click', handleClick);
+    this.scrollLeftButton.addEventListener('click', handleClick);
+  }
+  addNavScrollEventListener() {
+    const handleScroll = () => {
+      this.updateScrollIndicatorVisibility();
+    }
+    this.throttledHandleScroll = this._throttle(() => handleScroll(), 300);
+    this.nav.addEventListener('scroll', () => this.throttledHandleScroll());
+  }
   addResizeEventListener() {
     const handleEvent = () => {
       this.updateIndicator();
+      this.updateScrollIndicatorVisibility()
     }
 
     window.addEventListener('resize', handleEvent)
@@ -101,6 +134,7 @@ class PinnedPageNavBar {
   addDOMContentLoadedEventListener() {
     const handleEvent = () => {
       this.updateIndicator();
+      this.updateScrollIndicatorVisibility();
     }
 
     window.addEventListener('DOMContentLoaded', handleEvent)
@@ -108,6 +142,7 @@ class PinnedPageNavBar {
   addLoadEventListener() {
     const handleEvent = () => {
       this.updateIndicator();
+      this.updateScrollIndicatorVisibility();
     }
 
     window.addEventListener('load', handleEvent)
@@ -233,6 +268,21 @@ class PinnedPageNavBar {
     }
 
   };
+  updateScrollIndicatorVisibility() {
+    if (this.nav.clientWidth >= (this.nav.scrollWidth - 3)) {
+      this.el.dataset.scrollIndicator = 'no-scroll'
+      return;
+    } 
+
+    
+    if (this.nav.scrollLeft <= 3) {
+      this.el.dataset.scrollIndicator = 'start' 
+    } else if ((this.nav.scrollLeft + this.nav.clientWidth) >= (this.nav.scrollWidth - 3)) {
+      this.el.dataset.scrollIndicator = 'end'
+    } else {
+      this.el.dataset.scrollIndicator = 'middle'
+    }
+  }
 
   getMostVisibleSection() {
     let mostVisibleSection = null;
@@ -282,35 +332,6 @@ class PinnedPageNavBar {
   const pageNavElements = document.querySelectorAll("[data-wm-pinned-page-navbar]");
   if (!pageNavElements.length) return;
 
-  // Function to build page navigation
-  function buildNav() {
-    const sectionsContainer = document.querySelector("#sections");
-    const navElements = Array.from(pageNavElements);
-    let navElementIdCounter = 0;
-
-    navElements.forEach(element => {
-      element.dataset.id = `page-nav-${++navElementIdCounter}`;
-    });
-
-    const navButtonsHtml = navElements
-      .map(element => `<button data-id="${element.dataset.id}">${element.innerHTML}</button>`)
-      .join("");
-
-    sectionsContainer.insertAdjacentHTML(
-      "afterend",
-      `<div data-wm-plugin="pinned-page-navbar" class="wm-pinned-page-navbar">
-        <nav>
-          <span class="indicator-track">
-            <span class="indicator"></span>
-          </span>
-          ${navButtonsHtml}
-        </nav>
-      </div>`
-    );
-  }
-  buildNav();
-  const pageNavPluginElement = document.querySelector('[data-wm-plugin="pinned-page-navbar"]');
-  
 
   // Get page navigation settings
   function deepMerge (...objs) {
@@ -350,8 +371,48 @@ class PinnedPageNavBar {
   const defaultSettings = {
     upperThreshold: 0,
     lowerThreshold: 0,
+    rightIcon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+</svg>`,
+    leftIcon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+</svg>`
   };
   const mergedSettings = deepMerge({}, defaultSettings, userSettings);
+  
+
+  // Function to build page navigation
+  function buildNav() {
+    const sectionsContainer = document.querySelector("#sections");
+    const navElements = Array.from(pageNavElements);
+    let navElementIdCounter = 0;
+
+    navElements.forEach(element => {
+      element.dataset.id = `page-nav-${++navElementIdCounter}`;
+    });
+
+    const navButtonsHtml = navElements
+      .map(element => `<button data-id="${element.dataset.id}">${element.innerHTML}</button>`)
+      .join("");
+
+    sectionsContainer.insertAdjacentHTML(
+      "afterend",
+      `<div data-wm-plugin="pinned-page-navbar" class="wm-pinned-page-navbar">
+        <button class="scroll-indicator scroll-left">${mergedSettings.leftIcon}</button>
+        <div class="nav-container">
+          <nav>
+            <span class="indicator-track">
+              <span class="indicator"></span>
+            </span>
+            ${navButtonsHtml}
+          </nav>
+        </div>
+        <button class="scroll-indicator scroll-right">${mergedSettings.rightIcon}</button>
+      </div>`
+    );
+  }
+  buildNav();
+  const pageNavPluginElement = document.querySelector('[data-wm-plugin="pinned-page-navbar"]');
 
   // Initialize Plugin
   window.wmPinnedPageNavbar = new PinnedPageNavBar(pageNavPluginElement, mergedSettings);

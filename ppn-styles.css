@@ -1,7 +1,7 @@
 /** 
 * Pinned Page Navbar for Squarespace
 * Copyright Will-Myers.com
-***/ 
+**/ 
 
 [data-wm-plugin="pinned-page-navbar"] {
   /*Nav Container*/
@@ -16,13 +16,15 @@
   --ppn-shadow-offset-y: 2px;
   --ppn-shadow-blur: 4px;
   --ppn-shadow-spread: 0px;
-  --ppn-shadow-color: hsla(0, 0%, 0%, 0.15);
-  --ppn-max-width: 90vw;
+  --ppn-shadow-opacity: 0.15;
+  --ppn-shadow-color: hsla(0, 0%, 0%, var(--ppn-shadow-opacity));
+  --ppn-max-width: 88vw;
   --ppn-bottom-offset: 34px;
+  --ppn-background-blur: 0px;
 
   /*Button Styles*/
   --ppn-button-border-radius: 2em;   /*internal padding of nav*/
-  --ppn-button-font-size: calc((var(--primary-button-font-font-size-value, 1) - 1) * 1.2vw + 1rem) ;
+  --ppn-button-font-size: calc((var(--ppn-font-size, var(--primary-button-font-font-size-value, 1)) - 1) * 1.2vw + 1rem) ;
   --ppn-button-color: var(--siteBackgroundColor);
   --ppn-button-font-family: var(--primary-button-font-font-family);
   --ppn-button-font-style: var(--primary-button-font-font-style);
@@ -40,14 +42,28 @@
   --ppn-button-spacing: 8px;
 
   /*Active Button Styles*/
-  --ppn-active-button-color: var(--primaryButtonBackgroundColor);;
+  --ppn-active-button-color: var(--primaryButtonBackgroundColor);
   --ppn-active-button-background: 0;
   --ppn-active-button-border-color: hsla(var(--safeLightAccent-hsl));
 
   /*Indicator Styles*/
   --ppn-indicator-background: var(--siteBackgroundColor);
+  --ppn-indicator-border-style: solid;
+  --ppn-indicator-border-width: 0px;
+  --ppn-indicator-border-color: var(--primaryButtonBackgroundColor);
   --ppn-indicator-border-radius: 2rem;
   --ppn-transition-speed: 0.5s;
+
+  /* Scroll Indicators */
+  --ppn-scroll-indicator-padding: 4px;
+  --ppn-scroll-indicator-background: var(--primaryButtonBackgroundColor);
+  --ppn-scroll-indicator-color: var(--siteBackgroundColor);
+  --ppn-scroll-indicator-size: 30px;
+  --ppn-scroll-indicator-offset: 15px;
+  --ppn-scroll-indicator-border-style: solid;
+  --ppn-scroll-indicator-border-width: 1px;
+  --ppn-scroll-indicator-border-color: currentColor;
+  --ppn-scroll-indicator-background-blur: 0px;
 }
 
 .wm-pinned-page-navbar {
@@ -56,9 +72,14 @@
   left: 50%;
   z-index: 9999;
   line-height: 0;
-  overflow:hidden;
+  /*overflow:hidden;*/
   transform: translate(-50%, 250px);
   transition: transform var(--ppn-transition-speed) ease var(--ppn-transition-speed);
+}
+.wm-pinned-page-navbar .nav-container {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
   border-radius: var(--ppn-border-radius);
   background: var(--ppn-background);
   border-style: var(--ppn-border-style);
@@ -69,8 +90,8 @@
     var(--ppn-shadow-blur) 
     var(--ppn-shadow-spread) 
     var(--ppn-shadow-color);
+  backdrop-filter: blur(var(--ppn-background-blur))
 }
-
 .wm-pinned-page-navbar nav {
   padding: var(--ppn-padding-y) var(--ppn-padding-x);
   display: inline-flex;
@@ -134,10 +155,76 @@
   top: var(--ppn-padding-y);
   background: var(--ppn-indicator-background);
   box-sizing: border-box;
-  border-radius: var(--ppn-indicator-border-radius);
+  border-radius: var(--ppn-border-radius, var(--ppn-indicator-border-radius));
+  border-style: var(--ppn-indicator-border-style);
+  border-width: var(--ppn-indicator-border-width);
+  border-color: var(--ppn-indicator-border-color);
   transition: left var(--ppn-transition-speed) ease, width var(--ppn-transition-speed) ease, height var(--ppn-transition-speed) linear, transform var(--ppn-transition-speed) ease;
   z-index: 0;
 }
+
+.wm-pinned-page-navbar .scroll-indicator{
+  position:absolute;
+  top:50%;
+  transform: translateY(-50%) translateX(0);
+  border-radius: 50%;
+  opacity: 1;
+  visibility: visible;
+  border-style: var(--ppn-scroll-indicator-border-style);
+  border-width: var(--ppn-scroll-indicator-border-width);
+  border-color: var(--ppn-scroll-indicator-border-color);
+  backdrop-filter: blur(var(--ppn-scroll-indicator-background-blur));
+  padding: var(--ppn-scroll-indicator-padding);
+  background: var(--ppn-scroll-indicator-background);
+  color: var(--ppn-scroll-indicator-color);
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  height: var(--ppn-scroll-indicator-size);
+  width: var(--ppn-scroll-indicator-size);
+  z-index: 2;
+  transition: opacity 0.5s ease,
+    transform 0.5s ease,
+    visibility 0.5s ease;
+}
+.wm-pinned-page-navbar  .scroll-indicator svg {
+  height:100%;
+  width:100%;
+}
+.wm-pinned-page-navbar  .scroll-indicator.scroll-left{
+  left: calc(-1 * var(--ppn-scroll-indicator-offset));
+}
+.wm-pinned-page-navbar  .scroll-indicator.scroll-right{
+  right: calc(-1 * var(--ppn-scroll-indicator-offset));
+}
+
+/*Scroll Indicator States*/
+[data-scroll-indicator="start"].wm-pinned-page-navbar .scroll-left{
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-50%) translateX(-10px);
+  transition: opacity 0.5s ease,
+    transform 0.5s ease,
+    visibility 0.5s ease 0.5s ;
+}
+
+[data-scroll-indicator="end"].wm-pinned-page-navbar  .scroll-right{
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-50%) translateX(10px);
+  transition: opacity 0.5s ease,
+    transform 0.5s ease,
+    visibility 0.5s ease 0.5s;
+}
+[data-scroll-indicator="no-scroll"].wm-pinned-page-navbar .scroll-left,
+[data-scroll-indicator="no-scroll"].wm-pinned-page-navbar .scroll-right{
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease,
+    transform 0.5s ease,
+    visibility 0.5s ease 0.5s ;
+}
+
 
 /* Visible */
 .wm-pinned-page-navbar.show {
