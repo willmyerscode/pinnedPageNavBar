@@ -32,8 +32,8 @@
   --ppn-button-line-height: var(--primary-button-font-line-height);
   --ppn-button-letter-spacing: var(--primary-button-font-letter-spacing);
   --ppn-button-text-transform: var(--primary-button-font-text-transform);
-  --ppn-button-padding-y: var(--primary-button-padding-y);
-  --ppn-button-padding-x: var(--primary-button-padding-x);
+  --ppn-button-padding-y: calc(var(--primary-button-padding-y) / 2);
+  --ppn-button-padding-x: calc(var(--primary-button-padding-x) / 2);
   --ppn-button-background: hsla(var(--darkAccent-hsl));
   --ppn-button-background: transparent;
   --ppn-button-border-style: solid;
