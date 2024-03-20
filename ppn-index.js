@@ -168,7 +168,7 @@ class PinnedPageNavBar {
 
   scrollSectionIntoView(item) {
     const firstSection = item.targets[0];
-    const top = firstSection.offsetTop + parseInt(this.settings.scrollMargin);
+    const top = firstSection.offsetTop - parseInt(this.settings.scrollMargin);
     window.scrollTo({
       top: top,
       behavior: 'smooth',
