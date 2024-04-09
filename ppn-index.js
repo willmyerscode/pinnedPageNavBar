@@ -2,6 +2,7 @@
 * Pinned Page Navbar for Squarespace
 * Copyright Will-Myers.com
 **/ 
+
 class PinnedPageNavBar {
   static emitEvent(type, detail = {}, elem = document) {
     // Make sure there's an event type
@@ -47,11 +48,13 @@ class PinnedPageNavBar {
       const button = this.el.querySelector(`button[data-id="${element.dataset.id}"]`);
       let currentSection = element.closest("section");
       const targetSections = [currentSection];
+      const targetSectionIds = [currentSection.dataset.sectionId]
     
       while (currentSection.nextElementSibling) {
         const nextSection = currentSection.nextElementSibling;
         if (nextSection.tagName === "SECTION" && !nextSection.querySelector("[data-wm-pinned-page-navbar], [data-wm-pinned-page-navbar-end]")) {
           targetSections.push(nextSection);
+          targetSectionIds.push(nextSection.dataset.sectionId);
           currentSection = nextSection;
         } else {
           break;
@@ -61,9 +64,11 @@ class PinnedPageNavBar {
       this.items.push({
         buttonEl: button,
         targets: targetSections,
+        targetIds: targetSectionIds
       });
     });
   }
+  
 
   bindEvents() {    
     this.addScrollEventListener();
@@ -152,8 +157,7 @@ class PinnedPageNavBar {
   }
   addPluginLoadedEventListener() {
     const handlePluginLoaded = () => {
-      console.log('loaded');
-      this.el.style.transitionDelay = '0s'
+      this.el.style.transitionDelay = '0s';
     }
 
     document.addEventListener('wmPinnedPageNavbar:loaded', handlePluginLoaded)
@@ -167,8 +171,15 @@ class PinnedPageNavBar {
   }
 
   scrollSectionIntoView(item) {
-    const firstSection = item.targets[0];
-    const top = firstSection.offsetTop - parseInt(this.settings.scrollMargin);
+    let firstSection = item.targets[0];
+    const firstSectionId = item.targetIds[0];
+    firstSection = document.querySelector(`[data-section-id="${firstSectionId}"]`)
+    const firstSectionRect = firstSection.getBoundingClientRect();
+    
+    console.log(firstSectionId);
+    console.log(firstSection);
+    
+    const top = window.scrollY + firstSectionRect.top - parseInt(this.settings.scrollMargin);
     window.scrollTo({
       top: top,
       behavior: 'smooth',
@@ -416,3 +427,4 @@ class PinnedPageNavBar {
   // Initialize Plugin
   window.wmPinnedPageNavbar = new PinnedPageNavBar(pageNavPluginElement, mergedSettings);
 })();
+
