@@ -30,6 +30,7 @@ class PinnedPageNavBar {
     this.scrollTimeout = null;
     this.preventScrollUpdates = false;
     this.activeItem = null;
+    this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     
     this.init();
   }
@@ -69,7 +70,6 @@ class PinnedPageNavBar {
     });
   }
   
-
   bindEvents() {    
     this.addScrollEventListener();
     this.handleScrollEnd = this._debounceScrollEnd(() => {
@@ -259,7 +259,6 @@ class PinnedPageNavBar {
     this.updateIndicator();
 
   }
-
   updateIndicator(){
     if (this.activeItem) {
       this.setNavWidth()
@@ -278,20 +277,27 @@ class PinnedPageNavBar {
 
   };
   updateScrollIndicatorVisibility() {
-    if (this.nav.clientWidth >= (this.nav.scrollWidth - 3)) {
+    let adjustedScrollWidth = this.nav.scrollWidth
+    if (this.isSafari) {
+      const style = window.getComputedStyle(this.nav);
+      const paddingOneSide = parseInt(style.paddingLeft) + parseInt(style.paddingRight);
+      adjustedScrollWidth = this.nav.scrollWidth - paddingOneSide
+    }
+    
+    if (this.nav.clientWidth >= adjustedScrollWidth) {
       this.el.dataset.scrollIndicator = 'no-scroll'
       return;
     } 
-
     
     if (this.nav.scrollLeft <= 3) {
       this.el.dataset.scrollIndicator = 'start' 
-    } else if ((this.nav.scrollLeft + this.nav.clientWidth) >= (this.nav.scrollWidth - 3)) {
+    } else if ((this.nav.scrollLeft + this.nav.clientWidth) >= (adjustedScrollWidth - 3)) {
       this.el.dataset.scrollIndicator = 'end'
     } else {
       this.el.dataset.scrollIndicator = 'middle'
     }
   }
+
 
   getMostVisibleSection() {
     let mostVisibleSection = null;
@@ -427,4 +433,3 @@ class PinnedPageNavBar {
   // Initialize Plugin
   window.wmPinnedPageNavbar = new PinnedPageNavBar(pageNavPluginElement, mergedSettings);
 })();
-
