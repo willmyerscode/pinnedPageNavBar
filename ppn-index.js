@@ -27,6 +27,7 @@ class PinnedPageNavBar {
     this.pageNavElements = document.querySelectorAll("[data-wm-pinned-page-navbar]");
     this.scrollLeftButton = this.el.querySelector('.scroll-indicator.scroll-left');
     this.scrollRightButton = this.el.querySelector('.scroll-indicator.scroll-right');
+    this.header = document.querySelector('#header')
     this.scrollTimeout = null;
     this.preventScrollUpdates = false;
     this.activeItem = null;
@@ -84,6 +85,8 @@ class PinnedPageNavBar {
     this.addDOMContentLoadedEventListener()
     this.addLoadEventListener();
     this.addPluginLoadedEventListener();
+    
+    this.addAnchorClickListener();
   }
 
   addButtonClickEventListeners() {
@@ -176,9 +179,6 @@ class PinnedPageNavBar {
     firstSection = document.querySelector(`[data-section-id="${firstSectionId}"]`)
     const firstSectionRect = firstSection.getBoundingClientRect();
     
-    console.log(firstSectionId);
-    console.log(firstSection);
-    
     const top = window.scrollY + firstSectionRect.top - parseInt(this.settings.scrollMargin);
     window.scrollTo({
       top: top,
@@ -233,9 +233,8 @@ class PinnedPageNavBar {
         const scrollTo = activeItemOffset - navHalfWidth;
     
         // Scroll nav to center the active item
-        this.nav.scrollTo({
-          left: scrollTo,
-          behavior: 'smooth'
+        requestAnimationFrame(() => {
+          this.nav.scrollTo({ left: scrollTo, behavior: 'smooth' });
         });
       } 
       this.el.dataset.scrollPosition = "over"
@@ -259,6 +258,21 @@ class PinnedPageNavBar {
     this.updateIndicator();
 
   }
+
+  addAnchorClickListener() {
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    anchorLinks.forEach(anchor => {
+      anchor.addEventListener('click', (event) => {
+        this.preventScrollUpdates = true;
+        setTimeout(() => {
+          this.preventScrollUpdates = false;
+          this.onScroll();
+        }, 1000);
+      });
+    });
+  }
+
+  
   updateIndicator(){
     if (this.activeItem) {
       this.setNavWidth()
@@ -297,7 +311,6 @@ class PinnedPageNavBar {
       this.el.dataset.scrollIndicator = 'middle'
     }
   }
-
 
   getMostVisibleSection() {
     let mostVisibleSection = null;
