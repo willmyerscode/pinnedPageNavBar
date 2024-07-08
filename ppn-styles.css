@@ -90,7 +90,8 @@
     var(--ppn-shadow-blur) 
     var(--ppn-shadow-spread) 
     var(--ppn-shadow-color);
-  backdrop-filter: blur(var(--ppn-background-blur))
+  backdrop-filter: blur(var(--ppn-background-blur));
+  -webkit-backdrop-filter: blur(var(--ppn-background-blur));
 }
 .wm-pinned-page-navbar nav {
   padding: var(--ppn-padding-y) var(--ppn-padding-x);
