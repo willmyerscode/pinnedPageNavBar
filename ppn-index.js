@@ -27,6 +27,7 @@ class PinnedPageNavBar {
     this.pageNavElements = document.querySelectorAll("[data-wm-pinned-page-navbar]");
     this.scrollLeftButton = this.el.querySelector('.scroll-indicator.scroll-left');
     this.scrollRightButton = this.el.querySelector('.scroll-indicator.scroll-right');
+    this.indicator = this.el.querySelector('.indicator')
     this.header = document.querySelector('#header')
     this.scrollTimeout = null;
     this.preventScrollUpdates = false;
@@ -41,7 +42,10 @@ class PinnedPageNavBar {
     this.setupNavItemData();
     this.bindEvents();
     this.setActiveSection(this.getMostVisibleSection());
-    setTimeout(() => this.updateVisibilityBasedOnThreshold(), this.settings.pinToTop ? 0 : 0);
+    this.updateVisibilityBasedOnThreshold()
+    setTimeout(() => {
+      this.indicator.classList.remove('hidden')
+    }, 400)
     this.runScripts();
     PinnedPageNavBar.emitEvent('wmPinnedPageNavbar:loaded');
   }
@@ -296,7 +300,7 @@ class PinnedPageNavBar {
       this.el.style.setProperty("--indicator-width", this.activeItem.buttonEl.clientWidth + "px");
       this.el.style.setProperty("--indicator-left", this.nav.scrollWidth + "px");
     }
-
+    
   };
   updateScrollIndicatorVisibility() {
     let adjustedScrollWidth = this.nav.scrollWidth
@@ -454,7 +458,7 @@ class PinnedPageNavBar {
         <div class="nav-container">
           <nav>
             <span class="indicator-track">
-              <span class="indicator"></span>
+              <span class="indicator hidden"></span>
             </span>
             ${navButtonsHtml}
           </nav>
