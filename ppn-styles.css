@@ -76,6 +76,7 @@
   transform: translate(-50%, 250px);
   transition: transform var(--ppn-transition-speed) ease var(--ppn-transition-speed);
 }
+
 .wm-pinned-page-navbar .nav-container {
   position: relative;
   z-index: 1;
@@ -152,7 +153,7 @@
   width: var(--indicator-width, 0px);
   height: var(--indicator-height, calc(100% - 8px));
   position: absolute;
-  left: var(--indicator-left);
+  left: var(--indicator-left, -200px);
   top: var(--ppn-padding-y);
   background: var(--ppn-indicator-background);
   box-sizing: border-box;
@@ -228,7 +229,8 @@
 
 
 /* Visible */
-.wm-pinned-page-navbar.show {
+.wm-pinned-page-navbar.show, 
+.wm-pinned-page-navbar.pin-to-top.show {
   transform: translate(-50%, 0px);
 }
 
@@ -255,4 +257,13 @@ body:not(.sqs-edit-mode-active) [data-wm-pinned-page-navbar-end] {
 }
 [data-scroll-position="below-last"].wm-pinned-page-navbar .indicator {
   transform: translateX(calc(var(--ppn-padding-x) + 100%))
+}
+
+
+/*Pin to Top*/
+div.wm-pinned-page-navbar.pin-to-top {
+  top: calc(var(--ppn-bottom-offset, ) + var(--header-bottom, 0px));
+  bottom: unset !important;
+  transform: translate(-50%, -250px);
+  transition: top 0.3s ease,transform var(--ppn-transition-speed) ease var(--ppn-transition-speed);
 }
