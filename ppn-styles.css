@@ -161,8 +161,11 @@
   border-style: var(--ppn-indicator-border-style);
   border-width: var(--ppn-indicator-border-width);
   border-color: var(--ppn-indicator-border-color);
-  transition: left var(--ppn-transition-speed) ease, width var(--ppn-transition-speed) ease, height var(--ppn-transition-speed) linear, transform var(--ppn-transition-speed) ease;
+  transition: left var(--ppn-transition-speed) ease, width var(--ppn-transition-speed) ease, height var(--ppn-transition-speed) linear, transform var(--ppn-transition-speed) ease, opacity var(--ppn-transition-speed) ease, visibility var(--ppn-transition-speed) ease;
   z-index: 0;
+}
+.wm-pinned-page-navbar .indicator.hidden {
+  opacity: 0;
 }
 
 .wm-pinned-page-navbar .scroll-indicator{
