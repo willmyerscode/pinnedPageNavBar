@@ -31,6 +31,7 @@ class PinnedPageNavBar {
     this.scrollTimeout = null;
     this.preventScrollUpdates = false;
     this.activeItem = null;
+    this.scrollPosition = null;
     this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     
     this.init();
@@ -40,7 +41,8 @@ class PinnedPageNavBar {
     this.setupNavItemData();
     this.bindEvents();
     this.setActiveSection(this.getMostVisibleSection());
-    this.updateVisibilityBasedOnThreshold();
+    setTimeout(() => this.updateVisibilityBasedOnThreshold(), this.settings.pinToTop ? 0 : 0);
+    this.runScripts();
     PinnedPageNavBar.emitEvent('wmPinnedPageNavbar:loaded');
   }
 
@@ -187,8 +189,9 @@ class PinnedPageNavBar {
   }
 
   updateVisibilityBasedOnThreshold() {
-    const isBelowThreshold = window.scrollY >= this.settings.upperThreshold || this.settings.upperThreshold == 0;
-    const isAboveThreshold = (window.scrollY + window.innerHeight) <= (document.body.scrollHeight - this.settings.lowerThreshold + 1)  || this.settings.lowerThreshold == 0;
+    const isBelowThreshold = window.scrollY >= parseInt(this.settings.upperThreshold) || parseInt(this.settings.upperThreshold) === 0;
+    const isAboveThreshold = (window.scrollY + window.innerHeight) <= (document.body.scrollHeight - parseInt(this.settings.lowerThreshold) + 1)  || parseInt(this.settings.lowerThreshold) === 0;
+    
     if (isBelowThreshold && isAboveThreshold) {
       this.el.classList.add('show')
     } else {
@@ -237,6 +240,7 @@ class PinnedPageNavBar {
           this.nav.scrollTo({ left: scrollTo, behavior: 'smooth' });
         });
       } 
+      this.scrollPosition = 'over'
       this.el.dataset.scrollPosition = "over"
     } else {
       // If mostVisibleSection isn't part of a button,
@@ -248,9 +252,11 @@ class PinnedPageNavBar {
       const lastSectionEnd = this.items[this.items.length - 1].targets[this.items[this.items.length - 1].targets.length - 1].offsetTop;
       if (activeSectionTop < firstSectionTop) {
         this.activeItem = this.items[0];
+        this.scrollPosition = 'above-first'
         this.el.dataset.scrollPosition = "above-first"
       } else {
         this.activeItem = this.items[this.items.length - 1];
+        this.scrollPosition = 'below-last'
         this.el.dataset.scrollPosition = "below-last"
       }
     }
@@ -271,10 +277,9 @@ class PinnedPageNavBar {
       });
     });
   }
-
   
   updateIndicator(){
-    if (this.activeItem) {
+    if (this.activeItem && this.scrollPosition === 'over') {
       this.setNavWidth()
       const { 
         clientWidth: activeWidth, 
@@ -284,9 +289,12 @@ class PinnedPageNavBar {
       this.el.style.setProperty("--indicator-width", activeWidth + "px");
       this.el.style.setProperty("--indicator-left", activeOffsetLeft + "px");
       this.el.style.setProperty("--indicator-height", activeHeight + "px");
-    } else {
-      this.el.style.setProperty("--indicator-width", "0px");
+    } else if (this.activeItem && this.scrollPosition === 'above-first') {
+      this.el.style.setProperty("--indicator-width", this.activeItem.buttonEl.clientWidth + "px");
       this.el.style.setProperty("--indicator-left", "0px");
+    } else {
+      this.el.style.setProperty("--indicator-width", this.activeItem.buttonEl.clientWidth + "px");
+      this.el.style.setProperty("--indicator-left", this.nav.scrollWidth + "px");
     }
 
   };
@@ -353,6 +361,21 @@ class PinnedPageNavBar {
       }
     };
   }
+
+  
+  runScripts() {
+    if (this.settings.pinToTop) this.script_PinToTop();
+  }
+  script_PinToTop() {
+    const navbar = this.el;
+    const header = document.querySelector('#header');
+    if (!navbar) return;
+    function setHeight() {
+      const bottom = header ? header.getBoundingClientRect().bottom + 'px' : '0px'
+      navbar.style.setProperty('--header-bottom', bottom)
+    }
+    header.addEventListener('transitionend', setHeight)
+  }
 }
 
 (function () {
@@ -400,6 +423,7 @@ class PinnedPageNavBar {
     upperThreshold: 0,
     lowerThreshold: 0,
     scrollMargin: 0,
+    pinToTop: false,
     rightIcon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
 </svg>`,
@@ -407,8 +431,7 @@ class PinnedPageNavBar {
   <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
 </svg>`
   };
-  const mergedSettings = deepMerge({}, defaultSettings, userSettings);
-  
+  const mergedSettings = deepMerge({}, defaultSettings, userSettings);  
 
   // Function to build page navigation
   function buildNav() {
@@ -426,7 +449,7 @@ class PinnedPageNavBar {
 
     sectionsContainer.insertAdjacentHTML(
       "afterend",
-      `<div data-wm-plugin="pinned-page-navbar" class="wm-pinned-page-navbar">
+      `<div data-wm-plugin="pinned-page-navbar" class="wm-pinned-page-navbar${mergedSettings.pinToTop ? ' pin-to-top' : ''}" ${mergedSettings.pinToTop ? `style="--header-bottom: ${document.querySelector('#header').getBoundingClientRect().bottom}px;"` : ''}>
         <button class="scroll-indicator scroll-left">${mergedSettings.leftIcon}</button>
         <div class="nav-container">
           <nav>
