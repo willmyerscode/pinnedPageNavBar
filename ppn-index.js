@@ -209,9 +209,23 @@ class PinnedPageNavBar {
   }
 
   setActiveSection(section = null) {
+    const mostVisibleSection = section || this.getMostVisibleSection();
+    const atBottom = (window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 2;
+
+    if (atBottom) {
+      const lastItem = this.items[this.items.length - 1];
+      if (!lastItem.targets.includes(mostVisibleSection)) {
+        this.items.forEach(item => item.buttonEl.classList.remove("active"));
+        this.activeItem = lastItem;
+        this.scrollPosition = 'below-last'
+        this.el.dataset.scrollPosition = "below-last"
+        this.updateIndicator();
+        return;
+      }
+    }
+
     // The Most Visible Section is either passed in (for button clicks) 
     // or we grab it.
-    const mostVisibleSection = section || this.getMostVisibleSection();
     if (!mostVisibleSection) return;
     
     //Check to see if the most visible section is connected to one of our buttons
