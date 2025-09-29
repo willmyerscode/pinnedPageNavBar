@@ -441,6 +441,8 @@ class PinnedPageNavBar {
     upperThreshold: 0,
     lowerThreshold: 0,
     scrollMargin: 0,
+    insertAdjacent: '#sections',
+    insertAdjacentPosition: 'afterend',
     pinToTop: false,
     rightIcon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
@@ -453,7 +455,7 @@ class PinnedPageNavBar {
 
   // Function to build page navigation
   function buildNav() {
-    const sectionsContainer = document.querySelector("#sections");
+    const container = document.querySelector(mergedSettings.insertAdjacent);
     const navElements = Array.from(pageNavElements);
     let navElementIdCounter = 0;
 
@@ -465,8 +467,8 @@ class PinnedPageNavBar {
       .map(element => `<button data-id="${element.dataset.id}">${element.innerHTML}</button>`)
       .join("");
 
-    sectionsContainer.insertAdjacentHTML(
-      "afterend",
+    container.insertAdjacentHTML(
+      mergedSettings.insertAdjacentPosition,
       `<div data-wm-plugin="pinned-page-navbar" class="wm-pinned-page-navbar${mergedSettings.pinToTop ? ' pin-to-top' : ''}" ${mergedSettings.pinToTop ? `style="--header-bottom: ${document.querySelector('#header').getBoundingClientRect().bottom}px;"` : ''}>
         <button class="scroll-indicator scroll-left">${mergedSettings.leftIcon}</button>
         <div class="nav-container">
