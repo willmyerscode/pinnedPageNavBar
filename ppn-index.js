@@ -185,11 +185,26 @@ class PinnedPageNavBar {
     firstSection = document.querySelector(`[data-section-id="${firstSectionId}"]`)
     const firstSectionRect = firstSection.getBoundingClientRect();
     
-    const top = window.scrollY + firstSectionRect.top - parseInt(this.settings.scrollMargin);
+    // Get the fixed header offset if it exists
+    const headerOffset = this.getFixedHeaderOffset();
+    
+    const top = window.scrollY + firstSectionRect.top - parseInt(this.settings.scrollMargin) - headerOffset;
     window.scrollTo({
       top: top,
       behavior: 'smooth',
     });
+  }
+
+  getFixedHeaderOffset() {
+    // Check if Squarespace has set a fixed header offset
+    const htmlElement = document.documentElement;
+    const headerOffsetValue = getComputedStyle(htmlElement).getPropertyValue('--header-fixed-top-offset');
+    
+    if (headerOffsetValue) {
+      return parseFloat(headerOffsetValue);
+    }
+    
+    return 0;
   }
 
   updateVisibilityBasedOnThreshold() {
