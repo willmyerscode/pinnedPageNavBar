@@ -34,6 +34,11 @@ class PinnedPageNavBar {
     this.activeItem = null;
     this.scrollPosition = null;
     this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    this.manualScrollInProgress = false;
+    this.manualScrollTarget = null;
+    this.manualScrollRaf = null;
+    this.manualScrollTimeout = null;
+    this.manualScrollEndHandler = null;
     
     this.init();
   }
@@ -81,6 +86,7 @@ class PinnedPageNavBar {
     this.addScrollEventListener();
     this.handleScrollEnd = this._debounceScrollEnd(() => {
       // Only Run after scroll has ended for 300ms
+      if (this.manualScrollInProgress) return;
       this.setActiveSection();
       this.preventScrollUpdates = false;
     }, 300);
@@ -97,7 +103,6 @@ class PinnedPageNavBar {
 
   addButtonClickEventListeners() {
     const handleButtonClick = (item) => {
-      this.preventScrollUpdates = true; // Prevent scroll updating
       this.scrollSectionIntoView(item) // Scroll Section into view
       this.setActiveSection(item.targets[0]); // Set specific section as active
     }
@@ -189,6 +194,7 @@ class PinnedPageNavBar {
     const headerOffset = this.getFixedHeaderOffset();
     
     const top = window.scrollY + firstSectionRect.top - parseInt(this.settings.scrollMargin) - headerOffset;
+    this._beginManualScrollTracking(top);
     window.scrollTo({
       top: top,
       behavior: 'smooth',
@@ -331,6 +337,61 @@ class PinnedPageNavBar {
     }
     
   };
+
+  _beginManualScrollTracking(targetTop) {
+    this.manualScrollInProgress = true;
+    this.preventScrollUpdates = true;
+    this.manualScrollTarget = targetTop;
+    this._clearManualScrollTracking();
+
+    const supportsScrollEnd = 'onscrollend' in document;
+    if (supportsScrollEnd) {
+      this.manualScrollEndHandler = () => {
+        this.finishManualScrollTracking();
+      };
+      document.addEventListener('scrollend', this.manualScrollEndHandler, { once: true });
+    } else {
+      this.manualScrollRaf = requestAnimationFrame(() => this._watchManualScrollPosition());
+    }
+
+    this.manualScrollTimeout = window.setTimeout(() => {
+      this.finishManualScrollTracking();
+    }, 2000);
+  }
+
+  _watchManualScrollPosition() {
+    if (!this.manualScrollInProgress) return;
+    const distance = Math.abs(window.scrollY - this.manualScrollTarget);
+    if (distance <= 2) {
+      this.finishManualScrollTracking();
+      return;
+    }
+    this.manualScrollRaf = requestAnimationFrame(() => this._watchManualScrollPosition());
+  }
+
+  _clearManualScrollTracking() {
+    if (this.manualScrollRaf) {
+      cancelAnimationFrame(this.manualScrollRaf);
+      this.manualScrollRaf = null;
+    }
+    if (this.manualScrollTimeout) {
+      clearTimeout(this.manualScrollTimeout);
+      this.manualScrollTimeout = null;
+    }
+    if (this.manualScrollEndHandler) {
+      document.removeEventListener('scrollend', this.manualScrollEndHandler);
+      this.manualScrollEndHandler = null;
+    }
+  }
+
+  finishManualScrollTracking() {
+    if (!this.manualScrollInProgress) return;
+    this._clearManualScrollTracking();
+    this.manualScrollInProgress = false;
+    this.manualScrollTarget = null;
+    this.preventScrollUpdates = false;
+    this.onScroll();
+  }
   updateScrollIndicatorVisibility() {
     let adjustedScrollWidth = this.nav.scrollWidth
     if (this.isSafari) {
