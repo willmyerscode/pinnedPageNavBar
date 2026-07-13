@@ -23,7 +23,7 @@ class PinnedPageNavBar {
     this.settings = settings;
     this.items = [];
     this.nav = this.el.querySelector('nav')
-    this.sections = document.querySelectorAll('#sections > .page-section');
+    this.sections = document.querySelectorAll('#sections > .page-section, #page-regions .region > .page-section');
     this.pageNavElements = document.querySelectorAll("[data-wm-pinned-page-navbar]");
     this.scrollLeftButton = this.el.querySelector('.scroll-indicator.scroll-left');
     this.scrollRightButton = this.el.querySelector('.scroll-indicator.scroll-right');
@@ -57,23 +57,26 @@ class PinnedPageNavBar {
 
   setupNavItemData() {
     //Build The Items Array with the Button Element & Corresponding Sections
+    // Group by index into the ordered section list rather than DOM siblings,
+    // so this works whether page sections are siblings (legacy) or each wrapped
+    // in their own section.region (new page-regions structure).
+    const sections = Array.from(this.sections);
     this.pageNavElements.forEach(element => {
       const button = this.el.querySelector(`button[data-id="${element.dataset.id}"]`);
-      let currentSection = element.closest("section");
+      const currentSection = element.closest(".page-section") || element.closest("section");
+      const startIndex = sections.indexOf(currentSection);
+      if (!currentSection || startIndex === -1) return;
+
       const targetSections = [currentSection];
-      const targetSectionIds = [currentSection.dataset.sectionId]
-    
-      while (currentSection.nextElementSibling) {
-        const nextSection = currentSection.nextElementSibling;
-        if (nextSection.tagName === "SECTION" && !nextSection.querySelector("[data-wm-pinned-page-navbar], [data-wm-pinned-page-navbar-end]")) {
-          targetSections.push(nextSection);
-          targetSectionIds.push(nextSection.dataset.sectionId);
-          currentSection = nextSection;
-        } else {
-          break;
-        }
+      const targetSectionIds = [currentSection.dataset.sectionId];
+
+      for (let i = startIndex + 1; i < sections.length; i++) {
+        const nextSection = sections[i];
+        if (nextSection.querySelector("[data-wm-pinned-page-navbar], [data-wm-pinned-page-navbar-end]")) break;
+        targetSections.push(nextSection);
+        targetSectionIds.push(nextSection.dataset.sectionId);
       }
-    
+
       this.items.push({
         buttonEl: button,
         targets: targetSections,
@@ -517,7 +520,7 @@ class PinnedPageNavBar {
     upperThreshold: 0,
     lowerThreshold: 0,
     scrollMargin: 0,
-    insertAdjacent: '#sections',
+    insertAdjacent: '#sections, #page-regions',
     insertAdjacentPosition: 'afterend',
     pinToTop: false,
     rightIcon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -531,7 +534,10 @@ class PinnedPageNavBar {
 
   // Function to build page navigation
   function buildNav() {
-    const container = document.querySelector(mergedSettings.insertAdjacent);
+    const container = document.querySelector(mergedSettings.insertAdjacent) ||
+      document.querySelector('#page-regions') ||
+      document.querySelector('#sections');
+    if (!container) return;
     const navElements = Array.from(pageNavElements);
     let navElementIdCounter = 0;
 
@@ -565,3 +571,4 @@ class PinnedPageNavBar {
   // Initialize Plugin
   window.wmPinnedPageNavbar = new PinnedPageNavBar(pageNavPluginElement, mergedSettings);
 })();
+
