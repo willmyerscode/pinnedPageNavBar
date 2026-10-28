@@ -147,6 +147,7 @@ class PinnedPageNavBar {
     const handleEvent = () => {
       this.updateIndicator();
       this.updateScrollIndicatorVisibility()
+      this.updateVisibilityBasedOnThreshold();
     }
 
     window.addEventListener('resize', handleEvent)
@@ -216,9 +217,21 @@ class PinnedPageNavBar {
     return 0;
   }
 
+  getActiveThresholds() {
+    // Mobile thresholds fall back to the desktop values when they aren't set
+    const {upperThreshold, lowerThreshold, mobileUpperThreshold, mobileLowerThreshold} = this.settings;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const pick = (mobileValue, desktopValue) => isMobile && mobileValue !== null && mobileValue !== undefined && mobileValue !== '' ? mobileValue : desktopValue;
+    return {
+      upper: parseInt(pick(mobileUpperThreshold, upperThreshold)) || 0,
+      lower: parseInt(pick(mobileLowerThreshold, lowerThreshold)) || 0,
+    };
+  }
+
   updateVisibilityBasedOnThreshold() {
-    const isBelowThreshold = window.scrollY >= parseInt(this.settings.upperThreshold) || parseInt(this.settings.upperThreshold) === 0;
-    const isAboveThreshold = (window.scrollY + window.innerHeight) <= (document.body.scrollHeight - parseInt(this.settings.lowerThreshold) + 1)  || parseInt(this.settings.lowerThreshold) === 0;
+    const {upper, lower} = this.getActiveThresholds();
+    const isBelowThreshold = window.scrollY >= upper || upper === 0;
+    const isAboveThreshold = (window.scrollY + window.innerHeight) <= (document.body.scrollHeight - lower + 1)  || lower === 0;
     
     if (isBelowThreshold && isAboveThreshold) {
       this.el.classList.add('show')
@@ -519,6 +532,8 @@ class PinnedPageNavBar {
   const defaultSettings = {
     upperThreshold: 0,
     lowerThreshold: 0,
+    mobileUpperThreshold: null,
+    mobileLowerThreshold: null,
     scrollMargin: 0,
     insertAdjacent: '#sections, #page-regions',
     insertAdjacentPosition: 'afterend',
